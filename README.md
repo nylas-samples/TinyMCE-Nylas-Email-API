@@ -2,7 +2,8 @@
     <img src="https://brand.nylas.com/assets/downloads/logo_horizontal_png/Nylas-Logo-Horizontal-Blue_.png" alt="Aimeos logo" title="Aimeos" align="right" height="60" />
 </a>
 
-# Nylas Use Case Samples
+# TinyMCE <> Nylas Email API Demo
+
 
 **⚠️ Warning: This repo is still in the alpha development stage and stability is not fully guaranteed yet**
 
@@ -10,7 +11,7 @@ Explore working front-end and back-end sample code using an integration with Nyl
 
 The sample applications redirect to the Nylas hosted authentication page. Once a user authenticates, it allows them to interact with the Nylas APIs from a web client.
 
-Before you get started, head over to your Quickstart Application on the Nylas Dashboard for a copy of your `client id` and `client secret`. You'll need those later in the demo.
+Before you get started, head over to your Quickstart Application on the Nylas Dashboard to populate the `backend/.env` file. You'll need those later in the demo.
 
 ## ⚙️ Environment Setup
 
