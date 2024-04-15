@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import IconDelete from './components/icons/IconDelete.jsx';
 
+import {Editor} from '@tinymce/tinymce-react';
+
 function SendEmails({
   userId,
   draftEmail,
@@ -81,6 +83,9 @@ function SendEmails({
     onEmailSent();
   };
 
+  const [value, setValue] = useState('');
+  const initialValue = ''
+
   return (
     <form onSubmit={send} className={`email-compose-view ${style}`}>
       {!style && <h3 className="title">New message</h3>}
@@ -110,15 +115,17 @@ function SendEmails({
           </>
         )}
       </div>
-      <textarea
-        className="message-body"
-        aria-label="Message body"
-        placeholder="Type your message..."
-        rows={style === 'small' ? 3 : 20}
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-      />
-
+        <Editor
+            plugins={['autolink', 'image', 'inlinecss', 'lists', 'table']}
+            initialValue={initialValue}
+            value={value}
+            onEditorChange={(newValue) => {
+              setValue(newValue)
+              setBody(newValue)
+            }}
+            apiKey='ADD_TINY_MCE_API_KEY'
+            style={{ p: { margin: 0 } }}
+          />
       <div className="composer-button-group">
         <button
           className={`primary ${style}`}
