@@ -116,7 +116,7 @@ function SendEmails({
         )}
       </div>
         <Editor
-            plugins={['autolink', 'image', 'inlinecss', 'lists', 'table']}
+            plugins={['autolink', 'image', 'inlinecss', 'lists', 'table', 'help', 'tinymcespellchecker', 'a11ychecker', 'autocorrect', 'link']}
             initialValue={initialValue}
             value={value}
             onEditorChange={(newValue) => {
