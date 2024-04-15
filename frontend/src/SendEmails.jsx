@@ -8,6 +8,8 @@ import {Editor} from '@tinymce/tinymce-react';
 const fetchEventSourcePromise = import("https://unpkg.com/@microsoft/fetch-event-source@2.0.1/lib/esm/index.js")
   .then(module => module.fetchEventSource);
 
+import {Editor} from '@tinymce/tinymce-react';
+
 function SendEmails({
   userId,
   draftEmail,
