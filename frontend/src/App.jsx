@@ -95,7 +95,7 @@ function App() {
       disconnectUser={disconnectUser}
       refresh={refresh}
       isLoading={isLoading}
-      title="Email sample app"
+      title="TinyMCE Text Editor 🤝 Nylas Email API"
       toastNotification={toastNotification}
       setToastNotification={setToastNotification}
     >
