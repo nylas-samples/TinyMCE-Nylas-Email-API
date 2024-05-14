@@ -440,8 +440,8 @@ function SendEmails({
           </>
         )}
       </div>
-        <Editor
-            plugins={['anchor', 'autolink', 'charmap', 'code', 'advtemplate']}
+          <Editor
+            plugins={['advtemplate']}
             toolbar={['inserttemplate addtemplate']}
             initialValue={initialValue}
             value={value}
@@ -449,10 +449,13 @@ function SendEmails({
               setValue(newValue)
               setBody(newValue)
             }}
-            contextmenu= {'advtemplate'}
-            apiKey={'INSERT TINYMCE API KEY'}
-            style={{ p: { margin: 0 } }}
-            advtemplates={data}
+            init={{
+              contextmenu: 'advtemplate',
+              advcode_inline: true,
+              advtemplate_templates: data,
+              advtemplate_list: advtemplate_list,
+            }}
+            apiKey='INSERT_YOUR_API_KEY_HERE'
             advtemplate_list={advtemplate_list}
             advtemplate_get_template={advtemplate_get_template}
             advtemplate_create_category={advtemplate_create_category}
