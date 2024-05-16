@@ -123,11 +123,11 @@ function SendEmails({
     return { list }
   }
   
-  const store = create(data);
-  const advtemplate_list = async () => store.list()
+  const list = create(data).list();
+  const advtemplate_list = async () => list
 
-  console.log(129, store.list())
-  
+  // console.log(129, store.list())
+
   useEffect(() => {
     setTo(draftEmail.to);
     setSubject(draftEmail.subject);
@@ -223,8 +223,7 @@ function SendEmails({
         )}
       </div>
           <Editor
-            plugins={['advtemplate']}
-            toolbar={['inserttemplate addtemplate']}
+            apiKey='TINY_API_KEY'
             initialValue={initialValue}
             value={value}
             onEditorChange={(newValue) => {
@@ -232,22 +231,53 @@ function SendEmails({
               setBody(newValue)
             }}
             init={{
+              plugins: 'advtemplate mergetags',
+              toolbar: 'mergetags inserttemplate addtemplate',
               contextmenu: 'advtemplate',
               advcode_inline: true,
               advtemplate_templates: data,
               advtemplate_list: advtemplate_list,
+              mergetags_list: [
+                { value: 'First.Name', title: 'First Name' },
+                { value: 'Email', title: 'Email' },
+                {
+                  value: 'Current.Date',
+                  title: 'Current date in DD/MM/YYYY format'
+                },
+                {
+                  value: 'Current.Time',
+                },
+                {
+                  title: 'Person',
+                  menu: [
+                    {
+                      value: 'Person.Name.First',
+                      title: 'first name'
+                    },
+                    {
+                      value: 'Person.Name.Last',
+                      title: 'last name'
+                    },
+                    {
+                      value: 'Person.Name.Full',
+                      title: 'full name'
+                    },
+                    {
+                      title: 'Email',
+                      menu: [
+                        {
+                          value: 'Person.Email.Work'
+                        },
+                        {
+                          value: 'Person.Email.Home'
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }}
-            apiKey='8afz0rkf8ef73fr11l8nwv5jkwx74sw9nrtz734xp1f626ns'
             advtemplate_list={advtemplate_list}
-            // advtemplate_get_template={advtemplate_get_template}
-            // advtemplate_create_category={advtemplate_create_category}
-            // advtemplate_create_template={advtemplate_create_template}
-            // advtemplate_rename_category={advtemplate_rename_category}
-            // advtemplate_rename_template={advtemplate_rename_template}
-            // advtemplate_delete_category={advtemplate_delete_category}
-            // advtemplate_delete_template={advtemplate_delete_template}
-            // advtemplate_move_template={advtemplate_move_template}
-            // advtemplate_move_category_items={advtemplate_move_category_items}
           />
       <div className="composer-button-group">
         <button
