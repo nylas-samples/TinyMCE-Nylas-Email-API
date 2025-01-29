@@ -229,14 +229,16 @@ button {
   }
 
   footer {
+    display: flex;
+    flex-flow: column;
+    align-items: flex-start;
+    gap: $spacing-8;
+    font-weight: 600;
+    font-size: $fs-16;
+    line-height: 1.5;
     .logo {
       display: flex;
-      flex-flow: column;
-      align-items: flex-start;
-      gap: $spacing-8;
-      font-weight: 600;
-      font-size: $fs-16;
-      line-height: 1.5;
+      flex-flow: row;
     }
   }
 
@@ -301,7 +303,6 @@ section.login {
 
 @media #{$desktop} {
   .layout {
-    padding: 3rem 8rem;
 
     .title-menu {
       .menu {
