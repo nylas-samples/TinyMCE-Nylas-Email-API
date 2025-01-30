@@ -2,8 +2,11 @@ import { useNylas } from '@nylas/nylas-react';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import IconDelete from './components/icons/IconDelete.jsx';
-
 import {Editor} from '@tinymce/tinymce-react';
+
+// Import fetchEventSource dynamically
+const fetchEventSourcePromise = import("https://unpkg.com/@microsoft/fetch-event-source@2.0.1/lib/esm/index.js")
+  .then(module => module.fetchEventSource);
 
 function SendEmails({
   userId,
@@ -193,6 +196,121 @@ function SendEmails({
   const [value, setValue] = useState('');
   const initialValue = ''
 
+  // Configure AI request function
+  const ai_request = (request, respondWith) => {
+    respondWith.stream((signal, streamMessage) => {
+      // Adds each previous query and response as individual messages
+      const conversation = request.thread.flatMap((event) => {
+        if (event.response) {
+          return [
+            { role: 'user', content: event.request.query },
+            { role: 'assistant', content: event.response.data }
+          ];
+        } else {
+          return [];
+        }
+      });
+
+      // System messages provided by the plugin to format the output as HTML content.
+      const pluginSystemMessages = request.system.map((content) => ({
+        role: 'system',
+        content
+      }));
+
+      const systemMessages = [
+        ...pluginSystemMessages,
+        // Additional system messages to control the output of the AI
+        { role: 'system', content: 'Remove lines with ``` from the response start and response end.' }
+      ]
+
+      // Forms the new query sent to the API
+      const content = request.context.length === 0 || conversation.length > 0
+        ? request.query
+        : `Question: ${request.query} Context: """${request.context}"""`;
+
+      const messages = [
+        ...conversation,
+        ...systemMessages,
+        { role: 'user', content }
+      ];
+
+      const requestBody = {
+        model: 'gpt-4',
+        temperature: 0.7,
+        max_tokens: 800,
+        messages,
+        stream: true
+      };
+
+      const openAiOptions = {
+        signal,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
+        },
+        body: JSON.stringify(requestBody)
+      };
+
+      const onopen = async (response) => {
+        if (response) {
+          const contentType = response.headers.get('content-type');
+          if (response.ok && contentType?.includes('text/event-stream')) {
+            return;
+          } else if (contentType?.includes('application/json')) {
+            const data = await response.json();
+            if (data.error) {
+              throw new Error(`${data.error.type}: ${data.error.message}`);
+            }
+          }
+        } else {
+          throw new Error('Failed to communicate with the ChatGPT API');
+        }
+      };
+
+      const onmessage = (ev) => {
+        const data = ev.data;
+        if (data !== '[DONE]') {
+          const parsedData = JSON.parse(data);
+          const firstChoice = parsedData?.choices[0];
+          const message = firstChoice?.delta?.content;
+          if (message) {
+            streamMessage(message);
+          }
+        }
+      };
+
+      const onerror = (error) => {
+        setToastNotification({
+          type: 'error',
+          message: 'AI request failed: ' + error.message,
+          show: true,
+        });
+        throw error;
+      };
+
+      return fetchEventSourcePromise
+        .then(fetchEventSource =>
+          fetchEventSource('https://api.openai.com/v1/chat/completions', {
+            ...openAiOptions,
+            openWhenHidden: true,
+            onopen,
+            onmessage,
+            onerror
+          })
+        )
+        .then(async (response) => {
+          if (response && !response.ok) {
+            const data = await response.json();
+            if (data.error) {
+              throw new Error(`${data.error.type}: ${data.error.message}`);
+            }
+          }
+        })
+        .catch(onerror);
+    });
+  };
+
   return (
     <form onSubmit={send} className={`email-compose-view ${style}`}>
       {!style && <h3 className="title">New message</h3>}
@@ -231,15 +349,65 @@ function SendEmails({
               setBody(newValue)
             }}
             init={{
-              plugins: 'advtemplate mergetags',
-              toolbar: 'mergetags inserttemplate addtemplate | undo redo | blocks | ' +
-            'bold italic forecolor | alignleft aligncenter ' +
-            'alignright alignjustify | bullist numlist outdent indent | ' +
-            'removeformat | help',
+              plugins: 'lists link image table advcode help casechange mergetags inlinecss advtemplate tinymcespellchecker a11ychecker ai',
+              toolbar: 'formatgroup  | mergetags inserttemplate | link image table code | spellcheckdialog a11ycheck | aidialog aishortcuts help',
+              menubar: false,
+              statusbar: false,
+              toolbar_location: 'bottom',
+              toolbar_groups: {
+                formatgroup: {
+                  icon: 'format',
+                  tooltip: 'Formatting',
+                  items:
+                    'fontfamily fontsize | bold italic underline strikethrough forecolor | align outdent indent'
+                }
+              },
+              icon: 'format',
+              tooltip: 'Formatting',
               contextmenu: 'advtemplate',
               advcode_inline: true,
               advtemplate_templates: data,
-              advtemplate_list: advtemplate_list,
+              content_style: `
+                .tox-dialog {
+                  max-width: 90% !important;
+                  width: 800px !important;
+                }
+                .tox-dialog__body-content {
+                  max-height: 60vh !important;
+                  overflow-y: auto !important;
+                }
+                .email-template {
+                  font-family: Arial, sans-serif;
+                  max-width: 600px;
+                  margin: 0 auto;
+                }
+                .header {
+                  background: linear-gradient(135deg, #0077B6 0%, #00B4D8 100%);
+                  color: white;
+                  padding: 20px;
+                  border-radius: 8px 8px 0 0;
+                  text-align: center;
+                }
+                .content {
+                  padding: 20px;
+                  background: #ffffff;
+                  border: 1px solid #e0e0e0;
+                }
+                .highlight {
+                  background-color: #90E0EF;
+                  padding: 2px 5px;
+                  border-radius: 3px;
+                }
+                .footer {
+                  text-align: center;
+                  padding: 15px;
+                  background: #f8f9fa;
+                  border-radius: 0 0 8px 8px;
+                  font-size: 0.9em;
+                  color: #666;
+                }
+              `,
+              ai_request,
               mergetags_list: [
                 { value: 'First.Name', title: 'First Name' },
                 { value: 'Email', title: 'Email' },
@@ -278,13 +446,46 @@ function SendEmails({
                     }
                   ]
                 }
-              ]
+              ],
+              spellchecker_language: 'en_US',
+              width: '100%',
+              height: 500,
             }}
-            advtemplate_list={advtemplate_list}
           />
       <div className="composer-button-group">
+        {/* <button
+          type="button"
+          className="secondary"
+          onClick={() => {
+            const editor = tinymce.get(0);
+            const pluginAPI = editor.plugins.inlinecss;
+            pluginAPI.getContent().then((content) => {
+              navigator.clipboard.writeText(content.html).then(() => {
+                setToastNotification({
+                  type: 'success',
+                  message: 'HTML with inline CSS copied to clipboard!',
+                  show: true,
+                });
+                setTimeout(() => {
+                  setToastNotification(null);
+                }, 3000);
+              }).catch(err => {
+                setToastNotification({
+                  type: 'error',
+                  message: 'Failed to copy to clipboard',
+                  show: true,
+                });
+                setTimeout(() => {
+                  setToastNotification(null);
+                }, 3000);
+              });
+            });
+          }}
+        >
+          Copy HTML with Inline CSS
+        </button> */}
         <button
-          className={`primary ${style}`}
+          className="primary"
           disabled={!to || !body || isSending}
           type="submit"
         >

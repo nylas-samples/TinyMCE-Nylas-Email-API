@@ -301,6 +301,14 @@ section.login {
   border-radius: $spacing-32;
 }
 
+.email-compose {
+  border-radius: $spacing-32;
+}
+
+.tox .tox-dialog--width-md {
+  max-width: 480px !important;
+}
+
 @media #{$desktop} {
   .layout {
 
