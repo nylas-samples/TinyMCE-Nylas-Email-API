@@ -1,11 +1,16 @@
 import Nylas from 'nylas';
 
-const NylasConfig = {
+const nylasConfig = {
+  clientId: process.env.NYLAS_CLIENT_ID,
+  callbackUri: process.env.CLIENT_URI || `http://localhost:${process.env.PORT || 3000}`,
   apiKey: process.env.NYLAS_API_KEY,
   apiUri: process.env.NYLAS_API_REGION_URI,
- };
- 
- const nylas = new Nylas(NylasConfig);
+};
+
+const nylas = new Nylas({
+  apiKey: nylasConfig.apiKey,
+  apiUri: nylasConfig.apiUri,
+});
 
 const sendEmail = async (req, res) => {
   const user = res.locals.user;
