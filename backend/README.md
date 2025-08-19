@@ -18,9 +18,10 @@ Click **App Settings** to see the `client_id` and `client_secret` for the Quicks
 Add these to a `.env` in this directory as in the example below.
 
 ```yaml
-# Nylas application keys - see https://developer.nylas.com/docs/developer-guide/authentication/authorizing-api-requests/#sdk-authentication
-CLIENT_ID=client_id...
-CLIENT_SECRET=client_secret...
+# Nylas application keys - see https://developer.nylas.com/docs/v3/auth/hosted-oauth-apikey/#start-an-authorization-request
+NYLAS_CLIENT_ID=NYLAS_CLIENT_ID
+NYLAS_API_KEY=NYLAS_API_KEY
+NYLAS_API_URI=https://api.us.nylas.com
 ```
 
 ### Install Node dependencies
