@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import IconSync from './icons/IconSync.jsx';
 import IconLogout from './icons/IconLogout.jsx';
 import NylasLogo from './icons/nylas-logo-horizontal.svg';
+import TinyMCELogo from './icons/tinymce-logo.svg';
 import PropTypes from 'prop-types';
 import Toast from './Toast';
 
@@ -70,9 +71,10 @@ const Layout = ({
       </div>
       <main>{children}</main>
       <footer>
+      BUILT WITH
         <div className="logo">
-          POWERED BY
           <img src={NylasLogo} alt="Nylas Logo" />
+          <img src={TinyMCELogo} alt="TinyMCE Logo" />
         </div>
       </footer>
     </div>
