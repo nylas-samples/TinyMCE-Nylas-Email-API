@@ -12,9 +12,13 @@ const NylasLogin = ({ email, setEmail }) => {
     setIsLoading(true);
     sessionStorage.setItem('userEmail', email);
 
+    const currentUrl = window.location.origin;
+    
     nylas.authWithRedirect({
       emailAddress: email,
-      successRedirectUrl: '',
+      successRedirectUrl: currentUrl,
+      accessType: 'online',
+      responseType: 'code'
     });
   };
 

@@ -16,25 +16,25 @@ const port = 9000;
 
 
 // Initialize the Nylas SDK using the client credentials
-const NylasConfig = {
+const nylasConfig = {
+  clientId: process.env.NYLAS_CLIENT_ID,
+  callbackUri: process.env.CLIENT_URI || `http://localhost:${process.env.PORT || 3000}`,
   apiKey: process.env.NYLAS_API_KEY,
   apiUri: process.env.NYLAS_API_REGION_URI,
 };
 
-const nylas = new Nylas(NylasConfig);
+const nylas = new Nylas({
+  apiKey: nylasConfig.apiKey,
+  apiUri: nylasConfig.apiUri,
+});
 
-// Before we start our backend, we should register our frontend as a redirect
-// URI to ensure the auth completes
-const CLIENT_URI =
-  process.env.CLIENT_URI || `http://localhost:${process.env.PORT || 3000}`;
+// Store the client URI for later use
+const CLIENT_URI = nylasConfig.callbackUri;
 
-nylas.applications.getDetails({
-  redirectUris: [CLIENT_URI],
-}).then((applicationDetails) => {
-  console.log(
-    'Application registered. Application Details: ',
-    JSON.stringify(applicationDetails)
-  );
+console.log('Starting Nylas email application...');
+console.log('Server configured with:', {
+  apiUri: process.env.NYLAS_API_REGION_URI,
+  clientUri: CLIENT_URI
 });
   
 
@@ -47,12 +47,9 @@ app.post('/nylas/generate-auth-url', express.json(), async (req, res) => {
     clientId: process.env.NYLAS_CLIENT_ID,
     redirectUri: CLIENT_URI,
     loginHint: body.email_address,
-    scopes: [
-      'openid',
-      'https://www.googleapis.com/auth/userinfo.email',
-      'https://www.googleapis.com/auth/gmail.modify',
-      'https://www.googleapis.com/auth/gmail.send',
-    ]
+    accessType: 'online',
+    responseType: 'code',
+    scopes: ['email.read_only', 'email.send']
   })
 
   return res.send(authUrl);
