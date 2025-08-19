@@ -229,14 +229,16 @@ button {
   }
 
   footer {
+    display: flex;
+    flex-flow: column;
+    align-items: flex-start;
+    gap: $spacing-8;
+    font-weight: 600;
+    font-size: $fs-16;
+    line-height: 1.5;
     .logo {
       display: flex;
-      flex-flow: column;
-      align-items: flex-start;
-      gap: $spacing-8;
-      font-weight: 600;
-      font-size: $fs-16;
-      line-height: 1.5;
+      flex-flow: row;
     }
   }
 
@@ -299,9 +301,16 @@ section.login {
   border-radius: $spacing-32;
 }
 
+.email-compose {
+  border-radius: $spacing-32;
+}
+
+.tox .tox-dialog--width-md {
+  max-width: 480px !important;
+}
+
 @media #{$desktop} {
   .layout {
-    padding: 3rem 8rem;
 
     .title-menu {
       .menu {
