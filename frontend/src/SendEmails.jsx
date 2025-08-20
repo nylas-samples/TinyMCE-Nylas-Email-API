@@ -2,13 +2,10 @@ import { useNylas } from '@nylas/nylas-react';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import IconDelete from './components/icons/IconDelete.jsx';
-import {Editor} from '@tinymce/tinymce-react';
 
 // Import fetchEventSource dynamically
 const fetchEventSourcePromise = import("https://unpkg.com/@microsoft/fetch-event-source@2.0.1/lib/esm/index.js")
   .then(module => module.fetchEventSource);
-
-import {Editor} from '@tinymce/tinymce-react';
 
 function SendEmails({
   userId,
@@ -342,150 +339,15 @@ function SendEmails({
           </>
         )}
       </div>
-          <Editor
-            apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
-            initialValue={initialValue}
-            value={value}
-            onEditorChange={(newValue) => {
-              setValue(newValue)
-              setBody(newValue)
-            }}
-            init={{
-              plugins: 'lists link image table advcode help casechange mergetags inlinecss advtemplate tinymcespellchecker a11ychecker ai',
-              toolbar: 'formatgroup  | mergetags inserttemplate | link image table code | spellcheckdialog a11ycheck | aidialog aishortcuts help',
-              menubar: false,
-              statusbar: false,
-              toolbar_location: 'bottom',
-              toolbar_groups: {
-                formatgroup: {
-                  icon: 'format',
-                  tooltip: 'Formatting',
-                  items:
-                    'fontfamily fontsize | bold italic underline strikethrough forecolor | align outdent indent'
-                }
-              },
-              icon: 'format',
-              tooltip: 'Formatting',
-              contextmenu: 'advtemplate',
-              advcode_inline: true,
-              advtemplate_templates: data,
-              content_style: `
-                .tox-dialog {
-                  max-width: 90% !important;
-                  width: 800px !important;
-                }
-                .tox-dialog__body-content {
-                  max-height: 60vh !important;
-                  overflow-y: auto !important;
-                }
-                .email-template {
-                  font-family: Arial, sans-serif;
-                  max-width: 600px;
-                  margin: 0 auto;
-                }
-                .header {
-                  background: linear-gradient(135deg, #0077B6 0%, #00B4D8 100%);
-                  color: white;
-                  padding: 20px;
-                  border-radius: 8px 8px 0 0;
-                  text-align: center;
-                }
-                .content {
-                  padding: 20px;
-                  background: #ffffff;
-                  border: 1px solid #e0e0e0;
-                }
-                .highlight {
-                  background-color: #90E0EF;
-                  padding: 2px 5px;
-                  border-radius: 3px;
-                }
-                .footer {
-                  text-align: center;
-                  padding: 15px;
-                  background: #f8f9fa;
-                  border-radius: 0 0 8px 8px;
-                  font-size: 0.9em;
-                  color: #666;
-                }
-              `,
-              ai_request,
-              mergetags_list: [
-                { value: 'First.Name', title: 'First Name' },
-                { value: 'Email', title: 'Email' },
-                {
-                  value: 'Current.Date',
-                  title: 'Current date in DD/MM/YYYY format'
-                },
-                {
-                  value: 'Current.Time',
-                },
-                {
-                  title: 'Person',
-                  menu: [
-                    {
-                      value: 'Person.Name.First',
-                      title: 'first name'
-                    },
-                    {
-                      value: 'Person.Name.Last',
-                      title: 'last name'
-                    },
-                    {
-                      value: 'Person.Name.Full',
-                      title: 'full name'
-                    },
-                    {
-                      title: 'Email',
-                      menu: [
-                        {
-                          value: 'Person.Email.Work'
-                        },
-                        {
-                          value: 'Person.Email.Home'
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ],
-              spellchecker_language: 'en_US',
-              width: '100%',
-              height: 500,
-            }}
-          />
+      <textarea
+        className="message-body"
+        aria-label="Message body"
+        placeholder="Type your message..."
+        rows={style === 'small' ? 3 : 20}
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+      />
       <div className="composer-button-group">
-        {/* <button
-          type="button"
-          className="secondary"
-          onClick={() => {
-            const editor = tinymce.get(0);
-            const pluginAPI = editor.plugins.inlinecss;
-            pluginAPI.getContent().then((content) => {
-              navigator.clipboard.writeText(content.html).then(() => {
-                setToastNotification({
-                  type: 'success',
-                  message: 'HTML with inline CSS copied to clipboard!',
-                  show: true,
-                });
-                setTimeout(() => {
-                  setToastNotification(null);
-                }, 3000);
-              }).catch(err => {
-                setToastNotification({
-                  type: 'error',
-                  message: 'Failed to copy to clipboard',
-                  show: true,
-                });
-                setTimeout(() => {
-                  setToastNotification(null);
-                }, 3000);
-              });
-            });
-          }}
-        >
-          Copy HTML with Inline CSS
-        </button> */}
         <button
           className="primary"
           disabled={!to || !body || isSending}
