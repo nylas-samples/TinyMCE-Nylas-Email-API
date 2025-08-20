@@ -5,6 +5,7 @@ datastore.json
 .idea
 .husky/_
 .vscode
+dist
 
 # python
 __pycache__/
