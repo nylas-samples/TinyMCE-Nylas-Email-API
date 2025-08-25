@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@nylas/nylas-react": "^0.1.0",
+    "@tinymce/tinymce-react": "^6.3.0",
     "dompurify": "^2.3.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
