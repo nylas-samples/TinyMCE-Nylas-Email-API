@@ -5,6 +5,7 @@ datastore.json
 .idea
 .husky/_
 .vscode
+dist
 
 # python
 __pycache__/
@@ -28,7 +29,3 @@ build/
 *.tar.gz
 *.rar
 !gradle-wrapper.jar
-
-# Node.js
-frontend/package-lock.json
-backend/package-lock.json

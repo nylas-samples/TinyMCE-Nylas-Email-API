@@ -10,7 +10,6 @@
   "author": "Nylas Team",
   "license": "ISC",
   "dependencies": {
-    "@nylas/nylas-react": "^0.1.0",
     "body-parser": "^1.15.2",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",

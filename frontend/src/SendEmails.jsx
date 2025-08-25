@@ -2,13 +2,11 @@ import { useNylas } from '@nylas/nylas-react';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import IconDelete from './components/icons/IconDelete.jsx';
-import {Editor} from '@tinymce/tinymce-react';
+import { Editor } from "@tinymce/tinymce-react";
 
 // Import fetchEventSource dynamically
 const fetchEventSourcePromise = import("https://unpkg.com/@microsoft/fetch-event-source@2.0.1/lib/esm/index.js")
   .then(module => module.fetchEventSource);
-
-import {Editor} from '@tinymce/tinymce-react';
 
 function SendEmails({
   userId,
@@ -25,6 +23,44 @@ function SendEmails({
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [isSending, setIsSending] = useState(false);
+
+  const advtemplate_data = [
+    {
+      title: "Quick replies",
+      items: [
+        {
+          title: "Message received",
+          content:
+            '<p dir="ltr">Hey {{Customer.FirstName}}!</p>\n<p dir="ltr">Just a quick note to say we’ve received your message, and will get back to you within 48 hours.</p>\n<p dir="ltr">For reference, your ticket number is: {{Ticket.Number}}</p>\n<p dir="ltr">Should you have any questions in the meantime, just reply to this email and it will be attached to this ticket.</p>\n<p><strong> </strong></p>\n<p dir="ltr">Regards,</p>\n<p dir="ltr">{{Agent.FirstName}}</p>',
+        },
+        {
+          title: "Thanks for the feedback",
+          content:
+            '<p dir="ltr">Hi {{Customer.FirstName}},</p>\n<p dir="ltr">We appreciate you taking the time to provide feedback on {{Product.Name}}.</p>\n<p dir="ltr">It sounds like it wasn’t able to fully meet your expectations, for which we apologize. Rest assured our team looks at each piece of feedback and uses it to decide what to focus on next with {{Product.Name}}.</p>\n<p dir="ltr"><strong> </strong></p>\n<p dir="ltr">All the best, and let us know if there’s anything else we can do to help.</p>\n<p dir="ltr">-{{Agent.FirstName}}</p>',
+        },
+        {
+          title: "Still working on case",
+          content:
+            '<p dir="ltr">Hi {{Customer.FirstName}},</p>\n<p dir="ltr">Just a quick note to let you know we’re still working on your case. It’s taking a bit longer than we hoped, but we’re aiming to get you an answer in the next 48 hours.</p>\n<p dir="ltr">Stay tuned,</p>\n<p dir="ltr">{{Agent.FirstName}}</p>',
+        },
+      ],
+    },
+    {
+      title: "Closing tickets",
+      items: [
+        {
+          title: "Closing ticket",
+          content:
+            '<p dir="ltr">Hi {{Customer.FirstName}},</p>\n<p dir="ltr">We haven’t heard back from you in over a week, so we have gone ahead and closed your ticket number {{Ticket.Number}}.</p>\n<p dir="ltr">If you’re still running into issues, not to worry, just reply to this email and we will re-open your ticket.</p>\n<p><strong> </strong></p>\n<p dir="ltr">All the best,</p>\n<p dir="ltr">{{Agent.FirstName}}</p>',
+        },
+        {
+          title: "Post-call survey",
+          content:
+            '<p dir="ltr">Hey {{Customer.FirstName}}!</p>\n<p dir="ltr"> </p>\n<p dir="ltr">How did we do?</p>\n<p dir="ltr">If you have a few moments, we’d love you to fill out our post-support survey: {{Survey.Link}}</p>\n<p><strong> </strong></p>\n<p dir="ltr">Thanks in advance!<br>{{Company.Name}} Customer Support</p>',
+        },
+      ],
+    },
+  ];
 
   const data = [
     {
@@ -342,120 +378,76 @@ function SendEmails({
           </>
         )}
       </div>
-          <Editor
-            apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
-            initialValue={initialValue}
-            value={value}
-            onEditorChange={(newValue) => {
-              setValue(newValue)
-              setBody(newValue)
-            }}
-            init={{
-              plugins: 'lists link image table advcode help casechange mergetags inlinecss advtemplate tinymcespellchecker a11ychecker ai',
-              toolbar: 'formatgroup  | mergetags inserttemplate | link image table code | spellcheckdialog a11ycheck | aidialog aishortcuts help',
-              menubar: false,
-              statusbar: false,
-              toolbar_location: 'bottom',
-              toolbar_groups: {
-                formatgroup: {
-                  icon: 'format',
-                  tooltip: 'Formatting',
-                  items:
-                    'fontfamily fontsize | bold italic underline strikethrough forecolor | align outdent indent'
-                }
-              },
+      <Editor
+        apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
+        initialValue={initialValue}
+        value={value}
+        onEditorChange={(newValue) => {
+          setValue(newValue);
+          setBody(newValue);
+        }}
+        init={{
+          height: 500,
+          menubar: false,
+          plugins: ["image", "table", "help", "wordcount", 'inlinecss', 'advcode', 'mergetags', 'advtemplate', 'tinymcespellchecker', 'a11ychecker'],
+          toolbar: "mergetags inserttemplate | formatgroup | image table code | spellcheckdialog a11ycheck | help",
+          content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+          statusbar: false,
+          toolbar_location: 'bottom',
+          spellchecker_language: 'en_US',
+          toolbar_groups: {
+            formatgroup: {
               icon: 'format',
-              tooltip: 'Formatting',
-              contextmenu: 'advtemplate',
-              advcode_inline: true,
-              advtemplate_templates: data,
-              content_style: `
-                .tox-dialog {
-                  max-width: 90% !important;
-                  width: 800px !important;
-                }
-                .tox-dialog__body-content {
-                  max-height: 60vh !important;
-                  overflow-y: auto !important;
-                }
-                .email-template {
-                  font-family: Arial, sans-serif;
-                  max-width: 600px;
-                  margin: 0 auto;
-                }
-                .header {
-                  background: linear-gradient(135deg, #0077B6 0%, #00B4D8 100%);
-                  color: white;
-                  padding: 20px;
-                  border-radius: 8px 8px 0 0;
-                  text-align: center;
-                }
-                .content {
-                  padding: 20px;
-                  background: #ffffff;
-                  border: 1px solid #e0e0e0;
-                }
-                .highlight {
-                  background-color: #90E0EF;
-                  padding: 2px 5px;
-                  border-radius: 3px;
-                }
-                .footer {
-                  text-align: center;
-                  padding: 15px;
-                  background: #f8f9fa;
-                  border-radius: 0 0 8px 8px;
-                  font-size: 0.9em;
-                  color: #666;
-                }
-              `,
-              ai_request,
-              mergetags_list: [
-                { value: 'First.Name', title: 'First Name' },
-                { value: 'Email', title: 'Email' },
+              title: 'Format',
+              items: 'fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent'
+            }
+          },
+          advcode_inline: true,
+          mergetags_list: [
+            { value: "First.Name", title: "First Name" },
+            { value: "Email", title: "Email" },
+            {
+              value: "Current.Date",
+              title: "Current date in DD/MM/YYYY format",
+            },
+            {
+              value: "Current.Time",
+            },
+            {
+              title: "Person",
+              menu: [
                 {
-                  value: 'Current.Date',
-                  title: 'Current date in DD/MM/YYYY format'
+                  value: "Person.Name.First",
+                  title: "first name",
                 },
                 {
-                  value: 'Current.Time',
+                  value: "Person.Name.Last",
+                  title: "last name",
                 },
                 {
-                  title: 'Person',
+                  value: "Person.Name.Full",
+                  title: "full name",
+                },
+                {
+                  title: "Email",
                   menu: [
                     {
-                      value: 'Person.Name.First',
-                      title: 'first name'
+                      value: "Person.Email.Work",
                     },
                     {
-                      value: 'Person.Name.Last',
-                      title: 'last name'
+                      value: "Person.Email.Home",
                     },
-                    {
-                      value: 'Person.Name.Full',
-                      title: 'full name'
-                    },
-                    {
-                      title: 'Email',
-                      menu: [
-                        {
-                          value: 'Person.Email.Work'
-                        },
-                        {
-                          value: 'Person.Email.Home'
-                        }
-                      ]
-                    }
-                  ]
-                }
+                  ],
+                },
               ],
-              spellchecker_language: 'en_US',
-              width: '100%',
-              height: 500,
-            }}
-          />
+            },
+          ],
+          contextmenu: 'advtemplate',
+          advtemplate_templates: advtemplate_data
+        }}
+      />
       <div className="composer-button-group">
-        {/* <button
+      <button
           type="button"
           className="secondary"
           onClick={() => {
@@ -483,9 +475,9 @@ function SendEmails({
               });
             });
           }}
-        >
-          Copy HTML with Inline CSS
-        </button> */}
+        >		
+Copy HTML with Inline CSS
+        </button>
         <button
           className="primary"
           disabled={!to || !body || isSending}
